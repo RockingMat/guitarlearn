@@ -4,8 +4,8 @@ import { ReactNode } from "react";
 import { AuthProvider } from "../context/AuthContext";
 
 export const metadata = {
-  title: "MusicTempo Demo",
-  description: "Detects the tempo of your audio files.",
+  title: "Learn Guitar",
+  description: "Practice guitar effectively.",
 };
 
 interface RootLayoutProps {
