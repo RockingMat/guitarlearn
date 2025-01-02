@@ -5,8 +5,8 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import SignOut from "@/components/SignOut";
-import { getUserSessions, createNewPracticeSession} from "@/firebase/firestoreUtils";
-import { PracticeSession } from "@/types/PracticeSession";
+import { getUserSessions, createNewPracticeSession } from "@/firebase/firestoreUtils";
+import { PracticeSession } from "@/types/types";
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
@@ -55,35 +55,42 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: "1rem" }}>
-      <h1>Dashboard</h1>
-      <SignOut />
+    <div className="p-4">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Dashboard</h1>
+        <SignOut />
+      </div>
 
-      <button onClick={handleNewSession} style={{ margin: "1rem 0" }}>
+      <button
+        onClick={handleNewSession}
+        className="bg-blue-500 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded mb-6 transition duration-300"
+      >
         Start New Practice Session
       </button>
 
       {loading ? (
-        <p>Loading sessions...</p>
+        <p className="text-gray-600">Loading sessions...</p>
       ) : error ? (
-        <p style={{ color: "red" }}>{error}</p>
+        <p className="text-red-500">{error}</p>
       ) : sessions.length === 0 ? (
-        <p>No sessions found.</p>
+        <p className="text-gray-600">No sessions found.</p>
       ) : (
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "16px" }}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {sessions.map((session) => (
             <div
               key={session.id}
-              style={{
-                border: "1px solid #ccc",
-                padding: "1rem",
-                borderRadius: "8px",
-                width: "200px",
-              }}
+              className="border border-gray-300 rounded-lg p-4 shadow hover:shadow-md transition duration-300"
             >
-              <p><strong>Date:</strong> {new Date(session.date).toLocaleString()}</p>
-              <p><strong>Song:</strong> {session.song || "N/A"}</p>
-              <p><strong>Duration:</strong> {session.duration > 0 ? `${session.duration} mins` : "In Progress"}</p>
+              <p className="mb-2">
+                <strong>Date:</strong> {new Date(session.date).toLocaleString()}
+              </p>
+              <p className="mb-2">
+                <strong>Song:</strong> {session.song || "N/A"}
+              </p>
+              <p>
+                <strong>Duration:</strong>{" "}
+                {session.duration > 0 ? `${session.duration} mins` : "In Progress"}
+              </p>
             </div>
           ))}
         </div>

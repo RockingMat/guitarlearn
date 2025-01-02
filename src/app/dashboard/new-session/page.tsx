@@ -5,8 +5,8 @@ import React, { useEffect, useState, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/firebase/clientApp";
-import { PracticeSession } from "@/types/PracticeSession";
-import {updatePracticeSession} from "@/firebase/firestoreUtils";
+import { PracticeSession } from "@/types/types";
+import { updatePracticeSession } from "@/firebase/firestoreUtils";
 import { useAuth } from "@/context/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import PracticeSessionAudio from "@/components/PracticeSessionAudio";
@@ -90,54 +90,61 @@ const NewSessionPage: React.FC = () => {
   };
 
   if (!user) {
-    return <p>Loading...</p>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-gray-600">Loading...</p>
+      </div>
+    );
   }
 
   return (
     <ProtectedRoute>
-      <div style={{ padding: "1rem" }}>
-        <h1>New Practice Session</h1>
-
+      <div className="max-w-3xl mx-auto p-6 bg-white shadow-md rounded-md">
         {session ? (
           <>
-            <p>
-              <strong>Elapsed:</strong> {Math.floor(elapsedSeconds / 60)}m : {elapsedSeconds % 60}s
-            </p>
+            <div className="mb-4">
+              <span className="text-lg font-semibold">Elapsed:</span>{" "}
+              <span className="text-gray-700">
+                {Math.floor(elapsedSeconds / 60)}m : {elapsedSeconds % 60}s
+              </span>
+            </div>
 
             {/* Song Title Input */}
-            <div style={{ margin: "1rem 0" }}>
-              <label>
-                Song Title:{" "}
-                <input
-                  type="text"
-                  value={songTitle}
-                  onChange={(e) => setSongTitle(e.target.value)}
-                  placeholder={session.song || "Enter a song name..."}
-                  style={{ padding: "0.5rem", width: "200px" }}
-                />
+            <div className="mb-6">
+              <label htmlFor="songTitle" className="block text-sm font-medium text-gray-700 mb-2">
+                Song Title
               </label>
+              <input
+                id="songTitle"
+                type="text"
+                value={songTitle}
+                onChange={(e) => setSongTitle(e.target.value)}
+                placeholder={session.song || "Enter a song name..."}
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
             </div>
-            {session && (<PracticeSessionAudio />)}
+
+            {/* Practice Session Audio Component */}
+            <div className="mb-6">
+              <PracticeSessionAudio />
+            </div>
+
             {/* "End Session" button */}
-            <button
-              onClick={handleEndSession}
-              style={{
-                padding: "0.5rem 1rem",
-                backgroundColor: "#f44336",
-                color: "#fff",
-                border: "none",
-                borderRadius: "4px",
-                cursor: "pointer",
-              }}
-            >
-              End Session
-            </button>
+            <div className="flex justify-end">
+              <button
+                onClick={handleEndSession}
+                className="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-md transition duration-300"
+              >
+                End Session
+              </button>
+            </div>
           </>
         ) : (
-          <p>Loading session...</p>
+          <div className="flex items-center justify-center">
+            <p className="text-gray-600">Loading session...</p>
+          </div>
         )}
       </div>
-      
     </ProtectedRoute>
   );
 };

@@ -1,3 +1,4 @@
+// components/PracticeSessionAudio.tsx
 import React, { useState, useEffect, useRef } from "react";
 import AudioRecorder from "@/components/AudioRecorder";
 import AudioUploader from "@/components/AudioUploader";
@@ -68,7 +69,7 @@ const PracticeSessionAudio: React.FC = () => {
   };
 
   /**
-   * Cleanup the Blob URL and AudioContext when the Home component unmounts
+   * Cleanup the Blob URL and AudioContext when the component unmounts
    */
   useEffect(() => {
     return () => {
@@ -125,42 +126,35 @@ const PracticeSessionAudio: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: "1rem", maxWidth: "800px", margin: "0 auto" }}>
-      <h1>MusicTempo Demo</h1>
-
+    <div className="max-w-4xl mx-auto p-6 bg-gray-100 rounded-md shadow-md">
       {/* Mode Selection */}
-      <div style={{ marginBottom: "1rem" }}>
+      <div className="flex space-x-4 mb-6">
         <button
           onClick={() => setMode("record")}
-          style={{
-            padding: "0.5rem 1rem",
-            marginRight: "0.5rem",
-            backgroundColor: mode === "record" ? "#4CAF50" : "#f0f0f0",
-            color: mode === "record" ? "#fff" : "#000",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
+          className={`flex-1 py-2 px-4 rounded-md font-semibold transition duration-300
+            ${
+              mode === "record"
+                ? "bg-green-500 text-white hover:bg-green-600"
+                : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+            }`}
         >
           Record Audio
         </button>
         <button
           onClick={() => setMode("upload")}
-          style={{
-            padding: "0.5rem 1rem",
-            backgroundColor: mode === "upload" ? "#4CAF50" : "#f0f0f0",
-            color: mode === "upload" ? "#fff" : "#000",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
+          className={`flex-1 py-2 px-4 rounded-md font-semibold transition duration-300
+            ${
+              mode === "upload"
+                ? "bg-green-500 text-white hover:bg-green-600"
+                : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+            }`}
         >
           Upload Audio
         </button>
       </div>
 
       {/* Conditional Rendering Based on Selected Mode */}
-      <div style={{ marginBottom: "1rem" }}>
+      <div className="mb-6">
         {mode === "record" ? (
           <AudioRecorder onRecordingComplete={handleFileSelect} />
         ) : (
@@ -169,45 +163,46 @@ const PracticeSessionAudio: React.FC = () => {
       </div>
 
       {/* Audio Player */}
-      {audioUrl && <AudioPlayer audioUrl={audioUrl} onTimeUpdate={handleTimeUpdate} />}
+      {audioUrl && (
+        <div className="mb-6">
+          <AudioPlayer audioUrl={audioUrl} onTimeUpdate={handleTimeUpdate} />
+        </div>
+      )}
 
       {/* Show the detected tempo */}
       {tempo && (
-        <div style={{ marginTop: "1rem" }}>
-          <p>
-            Detected Tempo: <strong>{displayTempo(tempo)}</strong>
+        <div className="mb-6">
+          <p className="text-lg">
+            Detected Tempo: <span className="font-semibold text-blue-600">{displayTempo(tempo)}</span>
           </p>
         </div>
       )}
 
       {/* Input for expected tempo */}
       {audioUrl && (
-        <div style={{ marginTop: "1rem" }}>
-          <label htmlFor="expectedTempo">
-            Expected Tempo (BPM):{" "}
-            <input
-              id="expectedTempo"
-              type="number"
-              value={expectedTempo ?? ""}
-              placeholder="e.g. 120"
-              onChange={(e) => {
-                const val = parseFloat(e.target.value);
-                setExpectedTempo(isNaN(val) ? null : val);
-              }}
-              style={{ padding: "0.25rem", marginLeft: "0.5rem", width: "100px" }}
-            />
+        <div className="mb-6">
+          <label htmlFor="expectedTempo" className="block text-sm font-medium text-gray-700">
+            Expected Tempo (BPM):
           </label>
+          <input
+            id="expectedTempo"
+            type="number"
+            value={expectedTempo ?? ""}
+            placeholder="e.g. 120"
+            onChange={(e) => {
+              const val = parseFloat(e.target.value);
+              setExpectedTempo(isNaN(val) ? null : val);
+            }}
+            className="mt-1 block w-32 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          />
         </div>
       )}
 
       {/* Timeline */}
       {audioUrl && (
-        <Timeline
-          duration={duration}
-          currentTime={currentTime}
-          beats={beats}
-          offBeats={offBeats}
-        />
+        <div className="mb-6">
+          <Timeline duration={duration} currentTime={currentTime} beats={beats} offBeats={offBeats} />
+        </div>
       )}
     </div>
   );

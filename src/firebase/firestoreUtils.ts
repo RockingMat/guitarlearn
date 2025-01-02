@@ -10,7 +10,7 @@ import {
   where,
   orderBy,
 } from "firebase/firestore";
-import { PracticeSession } from "@/types/PracticeSession";
+import { PracticeSession } from "@/types/types";
 
 
 
@@ -28,7 +28,9 @@ export const createNewPracticeSession = async (userId: string): Promise<string> 
         date: now.toISOString(),
         duration: 0,
         song: "",
-        startTime: now.toTimeString().split(" ")[0]
+        startTime: now.toTimeString().split(" ")[0],
+        goals: [],
+        recordings: []
       };
   
       const docRef = await addDoc(sessionsRef, newSession);

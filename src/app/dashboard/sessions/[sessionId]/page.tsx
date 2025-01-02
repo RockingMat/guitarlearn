@@ -2,13 +2,13 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useAuth } from "../../../../context/AuthContext";
+import { useAuth } from "@/context/AuthContext";
 import { useRouter, usePathname } from "next/navigation";
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "../../../../firebase/clientApp";
-import { PracticeSession } from "../../../../types/PracticeSession";
-import ProtectedRoute from "../../../../components/ProtectedRoute";
-import SignOut from "../../../../components/SignOut";
+import { db } from "@/firebase/clientApp";
+import { PracticeSession } from "@/types/types";
+import ProtectedRoute from "@/components/ProtectedRoute";
+import SignOut from "@/components/SignOut";
 
 const SessionDetail: React.FC = () => {
   const { user, loading } = useAuth();
