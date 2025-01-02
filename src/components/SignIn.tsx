@@ -4,8 +4,8 @@
 import React, { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase/clientApp";
-import Input from "./Input";
-import Button from "./Button";
+import { Input } from "@/components/ui/input"; // shadcn UI Input
+import { Button } from "@/components/ui/button"; // shadcn UI Button
 import { useRouter } from "next/navigation";
 
 const SignIn: React.FC = () => {
@@ -49,28 +49,42 @@ const SignIn: React.FC = () => {
         <h2 className="text-2xl font-bold text-center">Sign In</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Email Input */}
-          <Input
-            label="Email"
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            placeholder="you@example.com"
-            errorMessage={error && error.includes("email") ? error : undefined}
-          />
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              Email
+            </label>
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              placeholder="you@example.com"
+              className="mt-1 block w-full"
+            />
+            {error && error.includes("email") && (
+              <p className="text-red-500 text-sm mt-1">{error}</p>
+            )}
+          </div>
 
           {/* Password Input */}
-          <Input
-            label="Password"
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            placeholder="••••••••"
-            errorMessage={error && error.includes("password") ? error : undefined}
-          />
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              Password
+            </label>
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              placeholder="••••••••"
+              className="mt-1 block w-full"
+            />
+            {error && error.includes("password") && (
+              <p className="text-red-500 text-sm mt-1">{error}</p>
+            )}
+          </div>
 
           {/* General Error Message */}
           {error && !error.includes("email") && !error.includes("password") && (
@@ -78,8 +92,8 @@ const SignIn: React.FC = () => {
           )}
 
           {/* Submit Button */}
-          <Button type="submit" isLoading={isLoading}>
-            Sign In
+          <Button type="submit" disabled={isLoading} className="w-full">
+            {isLoading ? "Loading..." : "Sign In"}
           </Button>
         </form>
       </div>

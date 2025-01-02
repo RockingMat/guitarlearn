@@ -1,10 +1,10 @@
-// components/SignOut.tsx
+// app/components/SignOut.tsx
 "use client";
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
-import Button from "./Button";
+import { Button } from "@/components/ui/button"; // shadcn UI Button
 
 const SignOut: React.FC = () => {
   const { signOut } = useAuth();
@@ -27,10 +27,11 @@ const SignOut: React.FC = () => {
   return (
     <Button
       onClick={handleSignOut}
-      variant="danger"
-      isLoading={isLoading}
+      variant="destructive" // shadcn uses different variant names
+      disabled={isLoading}
+      className="w-full"
     >
-      Sign Out
+      {isLoading ? "Signing Out..." : "Sign Out"}
     </Button>
   );
 };

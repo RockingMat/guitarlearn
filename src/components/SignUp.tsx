@@ -4,8 +4,8 @@
 import React, { useState } from "react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase/clientApp";
-import Input from "./Input";
-import Button from "./Button";
+import { Input } from "@/components/ui/input"; // shadcn UI Input
+import { Button } from "@/components/ui/button"; // shadcn UI Button
 import { useRouter } from "next/navigation";
 
 const SignUp: React.FC = () => {
@@ -62,40 +62,61 @@ const SignUp: React.FC = () => {
         <h2 className="text-2xl font-bold text-center">Sign Up</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Email Input */}
-          <Input
-            label="Email"
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            placeholder="you@example.com"
-            errorMessage={error && error.includes("email") ? error : undefined}
-          />
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              Email
+            </label>
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              placeholder="you@example.com"
+              className="mt-1 block w-full"
+            />
+            {error && error.includes("email") && (
+              <p className="text-red-500 text-sm mt-1">{error}</p>
+            )}
+          </div>
 
           {/* Password Input */}
-          <Input
-            label="Password"
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            placeholder="••••••••"
-            errorMessage={error && error.includes("Password") ? error : undefined}
-          />
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              Password
+            </label>
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              placeholder="••••••••"
+              className="mt-1 block w-full"
+            />
+            {error && error.includes("Password") && (
+              <p className="text-red-500 text-sm mt-1">{error}</p>
+            )}
+          </div>
 
           {/* Confirm Password Input */}
-          <Input
-            label="Confirm Password"
-            id="confirmPassword"
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-            placeholder="••••••••"
-            errorMessage={error && error.includes("Passwords") ? error : undefined}
-          />
+          <div>
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+              Confirm Password
+            </label>
+            <Input
+              id="confirmPassword"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              placeholder="••••••••"
+              className="mt-1 block w-full"
+            />
+            {error && error.includes("Passwords") && (
+              <p className="text-red-500 text-sm mt-1">{error}</p>
+            )}
+          </div>
 
           {/* General Error Message */}
           {error && !error.includes("email") && !error.includes("Password") && !error.includes("Passwords") && (
@@ -106,8 +127,8 @@ const SignUp: React.FC = () => {
           {success && <p className="text-green-500 text-sm">{success}</p>}
 
           {/* Submit Button */}
-          <Button type="submit" isLoading={isLoading}>
-            Sign Up
+          <Button type="submit" disabled={isLoading} className="w-full">
+            {isLoading ? "Loading..." : "Sign Up"}
           </Button>
         </form>
       </div>
