@@ -5,10 +5,12 @@ import {
   doc,
   addDoc,
   updateDoc,
+  getDoc,
   getDocs,
   query,
   where,
   orderBy,
+  arrayUnion,
 } from "firebase/firestore";
 import { PracticeSession, Goal } from "@/types/types";
 
@@ -100,6 +102,53 @@ export const addUserGoal = async (userId: string, goalText: string): Promise<str
     return docRef.id;
   } catch (error) {
     console.error("Error adding new goal:", error);
+    throw error;
+  }
+};
+
+/**
+ * Add an existing goal to a specific practice session.
+ * @param sessionId The ID of the practice session.
+ * @param goalId The ID of the goal to add.
+ */
+export const addGoalToSession = async (sessionId: string, goalId: string) => {
+  try {
+    const sessionDoc = doc(db, "sessions", sessionId);
+    const goalDoc = doc(db, "goals", goalId);
+    // Optionally, fetch the goal data if you want to embed it
+    const goalSnapshot = await getDoc(goalDoc);
+    if (goalSnapshot.exists()) {
+      const goalData = goalSnapshot.data() as Goal;
+      await updateDoc(sessionDoc, {
+        goals: arrayUnion({
+          ...goalData,
+        }),
+      });
+    } else {
+      throw new Error("Goal does not exist.");
+    }
+  } catch (error) {
+    console.error("Error adding goal to session:", error);
+    throw error;
+  }
+};
+
+/**
+ * Get all goals associated with a specific practice session.
+ * @param sessionId The ID of the practice session.
+ */
+export const getSessionGoals = async (sessionId: string): Promise<Goal[]> => {
+  try {
+    const sessionDoc = doc(db, "sessions", sessionId);
+    const sessionSnapshot = await getDoc(sessionDoc);
+    if (sessionSnapshot.exists()) {
+      const data = sessionSnapshot.data() as PracticeSession;
+      return data.goals || [];
+    } else {
+      throw new Error("Session does not exist.");
+    }
+  } catch (error) {
+    console.error("Error fetching session goals:", error);
     throw error;
   }
 };

@@ -3,12 +3,21 @@
 
 import React, { useEffect, useState } from "react";
 import { Goal } from "@/types/types";
-import { getUserGoals, addUserGoal } from "@/firebase/firestoreUtils";
+import {
+  getUserGoals,
+  addUserGoal,
+  addGoalToSession,
+  getSessionGoals,
+} from "@/firebase/firestoreUtils";
 import { useAuth } from "@/context/AuthContext";
 import { Input } from "@/components/ui/input"; // shadcn UI Input
 import { Button } from "@/components/ui/button"; // shadcn UI Button
 
-const GoalsPanel: React.FC = () => {
+interface GoalsPanelProps {
+  sessionId?: string;
+}
+
+const GoalsPanel: React.FC<GoalsPanelProps> = ({ sessionId }) => {
   const { user } = useAuth();
   const [goals, setGoals] = useState<Goal[]>([]);
   const [newGoal, setNewGoal] = useState("");
@@ -22,7 +31,18 @@ const GoalsPanel: React.FC = () => {
       if (user) {
         try {
           const userGoals = await getUserGoals(user.uid);
-          setGoals(userGoals);
+          if (sessionId) {
+            // If in session context, fetch session-specific goals
+            const sessionGoals = await getSessionGoals(sessionId);
+            // Filter user goals to exclude those already in the session
+            const filteredGoals = userGoals.filter(
+              (goal) => !sessionGoals.find((sGoal) => sGoal.id === goal.id)
+            );
+            setGoals(filteredGoals);
+          } else {
+            // In dashboard context, display all user goals
+            setGoals(userGoals);
+          }
         } catch (err) {
           console.error(err);
           setError("Failed to fetch goals.");
@@ -34,7 +54,7 @@ const GoalsPanel: React.FC = () => {
       }
     };
     fetchGoals();
-  }, [user]);
+  }, [user, sessionId]);
 
   // Handle adding a new goal
   const handleAddGoal = async () => {
@@ -50,6 +70,10 @@ const GoalsPanel: React.FC = () => {
     setError(null);
     try {
       const goalId = await addUserGoal(user.uid, newGoal.trim());
+      if (sessionId) {
+        // If in session context, associate the new goal with the session
+        await addGoalToSession(sessionId, goalId);
+      }
       const addedGoal: Goal = {
         id: goalId,
         goal: newGoal.trim(),
@@ -68,24 +92,48 @@ const GoalsPanel: React.FC = () => {
   };
 
   return (
-    <div className="w-64 bg-white border border-gray-300 rounded-lg shadow-md p-4 flex flex-col h-full">
-      <h3 className="text-xl font-semibold mb-4">Your Goals</h3>
+    <div className="w-full lg:w-64 bg-white border border-gray-300 rounded-lg shadow-md p-4 flex flex-col h-full">
+      <h3 className="text-xl font-semibold mb-4">
+        {sessionId ? "Session Goals" : "Your Goals"}
+      </h3>
       <div className="flex-1 overflow-y-auto">
         {loading ? (
           <p className="text-gray-600">Loading goals...</p>
         ) : error ? (
           <p className="text-red-500">{error}</p>
         ) : goals.length === 0 ? (
-          <p className="text-gray-600">No goals found.</p>
+          <p className="text-gray-600">
+            {sessionId
+              ? "No available goals for this session."
+              : "No goals found."}
+          </p>
         ) : (
           <ul className="space-y-2">
             {goals.map((goal) => (
-              <li key={goal.id} className="p-2 border border-gray-200 rounded">
-                <p className="text-sm font-medium">{goal.goal}</p>
-                <p className="text-xs text-gray-500">
-                  Duration: {goal.duration} mins
-                </p>
-                {/* Optionally, display recentAttempt or other details */}
+              <li key={goal.id} className="p-2 border border-gray-200 rounded flex justify-between items-center">
+                <div>
+                  <p className="text-sm font-medium">{goal.goal}</p>
+                  <p className="text-xs text-gray-500">
+                    Duration: {goal.duration} mins
+                  </p>
+                </div>
+                {sessionId && (
+                  <Button
+                    size="sm"
+                    onClick={async () => {
+                      try {
+                        await addGoalToSession(sessionId, goal.id);
+                        // Remove the added goal from the available list
+                        setGoals(goals.filter((g) => g.id !== goal.id));
+                      } catch (err) {
+                        console.error(err);
+                        setError("Failed to add goal to session.");
+                      }
+                    }}
+                  >
+                    Add
+                  </Button>
+                )}
               </li>
             ))}
           </ul>
