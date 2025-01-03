@@ -1,13 +1,16 @@
-// app/dashboard/page.tsx
 "use client";
 
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import SignOut from "@/components/SignOut";
-import GoalsPanel from "@/components/GoalsPanel"; // Import GoalsPanel
+import GoalsPanel from "@/components/GoalsPanel";
 import { getUserSessions, createNewPracticeSession } from "@/firebase/firestoreUtils";
 import { PracticeSession } from "@/types/types";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { PlusCircle, Clock, Music } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
@@ -44,10 +47,7 @@ const Dashboard: React.FC = () => {
     }
 
     try {
-      // Create a new session in Firestore
       const newSessionId = await createNewPracticeSession(user.uid);
-
-      // Redirect the user to the new-session page, passing the sessionId as a query param
       router.push(`/dashboard/new-session?sessionId=${newSessionId}`);
     } catch (err) {
       console.error(err);
@@ -56,60 +56,68 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <div className="p-4">
-      {/* Header Section */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Dashboard</h1>
+    <div className="container mx-auto p-4 space-y-6">
+      <header className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold">Dashboard</h1>
         <div className="flex-none">
           <SignOut />
         </div>
-      </div>
-
-      {/* Main Content and Goals Panel */}
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Main Dashboard Content */}
-        <div className="flex-1">
-          <button
-            onClick={handleNewSession}
-            className="bg-blue-500 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded mb-6 transition duration-300"
-          >
-            Start New Practice Session
-          </button>
-
-          {loading ? (
-            <p className="text-gray-600">Loading sessions...</p>
-          ) : error ? (
-            <p className="text-red-500">{error}</p>
-          ) : sessions.length === 0 ? (
-            <p className="text-gray-600">No sessions found.</p>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-              {sessions.map((session) => (
-                <div
-                  key={session.id}
-                  className="border border-gray-300 rounded-lg p-4 shadow hover:shadow-md transition duration-300"
-                >
-                  <p className="mb-2">
-                    <strong>Date:</strong> {new Date(session.date).toLocaleString()}
-                  </p>
-                  <p className="mb-2">
-                    <strong>Song:</strong> {session.song || "N/A"}
-                  </p>
-                  <p>
-                    <strong>Duration:</strong>{" "}
-                    {session.duration > 0 ? `${session.duration} mins` : "In Progress"}
-                  </p>
+      </header>
+      <Separator />
+      <main className="flex flex-col lg:flex-row gap-6">
+        <div className="flex-1 space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Quick Actions</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Button onClick={handleNewSession} className="w-full">
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Start New Practice Session
+              </Button>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Practice Sessions</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {loading ? (
+                <p className="text-muted-foreground">Loading sessions...</p>
+              ) : error ? (
+                <p className="text-destructive">{error}</p>
+              ) : sessions.length === 0 ? (
+                <p className="text-muted-foreground">No sessions found.</p>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {sessions.slice(0, 4).map((session) => (
+                    <Card key={session.id}>
+                      <CardContent className="pt-6">
+                        <div className="flex items-center space-x-4">
+                          <Clock className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm text-muted-foreground">
+                            {new Date(session.date).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <h3 className="mt-2 font-semibold">{session.song || "Untitled Session"}</h3>
+                        <div className="flex items-center mt-2 space-x-4">
+                          <Music className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm text-muted-foreground">
+                            {session.duration > 0 ? `${session.duration} mins` : "In Progress"}
+                          </span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
-              ))}
-            </div>
-          )}
+              )}
+            </CardContent>
+          </Card>
         </div>
-
-        {/* Goals Panel Sidebar */}
         <div className="lg:w-80 w-full">
           <GoalsPanel />
         </div>
-      </div>
+      </main>
     </div>
   );
 };

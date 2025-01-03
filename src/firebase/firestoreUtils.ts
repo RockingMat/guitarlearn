@@ -12,13 +12,13 @@ import {
   orderBy,
   arrayUnion,
 } from "firebase/firestore";
-import { PracticeSession, Goal } from "@/types/types";
+import { PracticeSession, Goal, GoalId } from "@/types/types";
 
 /**
  * Create a new practice session for the current user.
  * @param userId The UID of the authenticated user.
  */
-export const createNewPracticeSession = async (userId: string): Promise<string> => {
+export const createNewPracticeSession = async (userId: string, goalIds: GoalId[]): Promise<string> => {
   try {
     const sessionsRef = collection(db, "sessions");
     const now = new Date();
@@ -28,7 +28,7 @@ export const createNewPracticeSession = async (userId: string): Promise<string> 
       duration: 0,
       song: "",
       startTime: now.toTimeString().split(" ")[0],
-      goals: [],
+      goals: goalIds,
       recordings: [],
     };
     const docRef = await addDoc(sessionsRef, newSession);
@@ -143,7 +143,15 @@ export const getSessionGoals = async (sessionId: string): Promise<Goal[]> => {
     const sessionSnapshot = await getDoc(sessionDoc);
     if (sessionSnapshot.exists()) {
       const data = sessionSnapshot.data() as PracticeSession;
-      return data.goals || [];
+      const goalIds = data.goals || [];
+      const goals: Goal[] = [];
+      for (const goalId of goalIds) {
+        const goalDoc = await getDoc(doc(db, "goals", goalId));
+        if (goalDoc.exists()) {
+          goals.push(goalDoc.data() as Goal);
+        }
+      }
+      return goals;
     } else {
       throw new Error("Session does not exist.");
     }
